@@ -124,12 +124,6 @@ static unsigned int trans_load_l3 = TRANS_LOAD_L3;
 module_param_named(load_l3, trans_load_l3, uint, 0644);
 #endif
 
-static unsigned int cpu_down_nr = 0;
-module_param(cpu_down_nr, int, 0775);
-
-static unsigned int cpu_up_nr = 0;
-module_param(cpu_up_nr, int, 0775);
-
 enum flag{
 	HOTPLUG_NOP,
 	HOTPLUG_IN,
@@ -294,13 +288,11 @@ static void hotplug_timer(struct work_struct *work)
 		cpu_up(select_off_cpu);
 		DBG_PRINT("cpu%d on\n", select_off_cpu);
 		hotpluging_rate = CHECK_DELAY_ON;
-		cpu_down_nr++;
 	} else if (flag_hotplug == HOTPLUG_OUT && cpu_online(cpu_rq_min) == CPU_ON) {
 		DBG_PRINT("cpu%d turnning off!\n", cpu_rq_min);
 		cpu_down(cpu_rq_min);
 		DBG_PRINT("cpu%d off!\n", cpu_rq_min);
 		hotpluging_rate = CHECK_DELAY_OFF;
-		cpu_up_nr++;
 	} 
 
 no_hotplug:
