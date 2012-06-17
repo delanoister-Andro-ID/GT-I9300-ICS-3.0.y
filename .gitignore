@@ -109,3 +109,4 @@ firmware/tsp_melfas/PRIV.fw
 firmware/tsp_melfas/PRIV.fw.gen.S
 firmware/tsp_melfas/PUBL.fw
 firmware/tsp_melfas/PUBL.fw.gen.S
+mkboot/
