@@ -389,3 +389,9 @@ config SND_SOC_WM9090
 	tristate
 
 source "sound/soc/codecs/mc1n2/Kconfig"
+
+config SOUND_CONTROL
+	bool "Interface to change sound parameters"
+	default y
+	help
+		Interface to change sound parameters.

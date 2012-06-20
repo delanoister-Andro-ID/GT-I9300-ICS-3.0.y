@@ -163,4 +163,6 @@ struct wm8994_priv {
 	const struct firmware *enh_eq;
 };
 
+int wm8994_write(struct snd_soc_codec *codec, unsigned int reg,
+	unsigned int value);
 #endif

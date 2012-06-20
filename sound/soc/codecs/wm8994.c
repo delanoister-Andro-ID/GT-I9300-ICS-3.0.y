@@ -11,11 +11,6 @@
  * published by the Free Software Foundation.
  */
 
-/*
- * Sound Control V1 - Copyright 2012 Francisco Franco
- * Based on Supercurio's original idea Voodoo Sound - check his apps on Google Play
- */
-
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/init.h>
@@ -42,6 +37,8 @@
 
 #include <linux/i2c/fm34_we395.h>
 
+#include "sound_control.h"
+
 #include "wm8994.h"
 #include "wm_hubs.h"
 
@@ -52,9 +49,6 @@
 
 #define WM8994_NUM_DRC 3
 #define WM8994_NUM_EQ  3
-
-bool dac_direct = true;
-module_param(dac_direct, bool, 0755);
 
 static int wm8994_drc_base[] = {
 	WM8994_AIF1_DRC1_1,
@@ -201,44 +195,14 @@ static int wm8994_volatile(struct snd_soc_codec *codec, unsigned int reg)
 	}
 }
 
-unsigned short get_dac_direct(unsigned short val, bool dac_direct)
-{
-	if (dac_direct) {
-		if (val == WM8994_DAC1L_TO_MIXOUTL)
-			return WM8994_DAC1L_TO_HPOUT1L;
-	}
-	else {
-		if (val == WM8994_DAC1L_TO_HPOUT1L)
-			return WM8994_DAC1L_TO_MIXOUTL;
-	}
-	
-	return val;	
-}
-
-unsigned int write_settings(struct snd_soc_codec *codec, unsigned int reg, unsigned int value)
-{
-	unsigned int vol_val = 62;
-	
-	if (reg == WM8994_LEFT_OUTPUT_VOLUME)
-		value = (WM8994_HPOUT1_VU | WM8994_HPOUT1L_MUTE_N | vol_val);
-	
-	if (reg == WM8994_RIGHT_OUTPUT_VOLUME)
-		value = (WM8994_HPOUT1_VU | WM8994_HPOUT1R_MUTE_N | vol_val);
-			
-	if (reg == WM8994_OUTPUT_MIXER_1 || WM8994_OUTPUT_MIXER_2)
-		value = get_dac_direct(value, dac_direct);
-				
-	return value;
-}
-
-static int wm8994_write(struct snd_soc_codec *codec, unsigned int reg,
+int wm8994_write(struct snd_soc_codec *codec, unsigned int reg,
 	unsigned int value)
 {
 	int ret;
 
 	BUG_ON(reg > WM8994_MAX_REGISTER);
 
-	value = write_settings(codec, reg, value);
+	value = sound_control_wm8994_write(codec, reg, value);
 
 	if (!wm8994_volatile(codec, reg)) {
 		ret = snd_soc_cache_write(codec, reg, value);
@@ -4316,6 +4280,8 @@ static int wm8994_codec_probe(struct snd_soc_codec *codec)
 					ARRAY_SIZE(wm8958_intercon));
 		break;
 	}
+
+	sound_control_wm8994_pcm_probe(codec);
 
 	return 0;
 
